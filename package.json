@@ -1,0 +1,18 @@
+{
+  "name": "pprint",
+  "main": "./lib/main",
+  "version": "0.1.0",
+  "description": "Print source code",
+  "keywords": [
+  ],
+  "activationCommands": {
+    "atom-workspace": "pprint:print"
+  },
+  "repository": "https://github.com/daw42/pprint",
+  "license": "MIT",
+  "engines": {
+    "atom": ">=1.0.0 <2.0.0"
+  },
+  "dependencies": {
+  }
+}

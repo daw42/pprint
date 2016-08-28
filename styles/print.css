@@ -1,0 +1,13 @@
+
+@media print {
+  @page {margin: 0.5in;}
+  body {
+
+  }
+  body pre {
+    font-size: 9pt;
+    font-family: monospace;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+  }
+}

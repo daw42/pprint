@@ -1,0 +1,35 @@
+{
+  "context-menu": {
+    "atom-text-editor": [
+      {
+        "label": "Print",
+        "command": "pprint:print"
+      }
+    ]
+  },
+  "menu": [
+    {
+      "label": "Packages",
+      "submenu": [
+        {
+          "label": "pprint",
+          "submenu": [
+            {
+              "label": "Print",
+              "command": "pprint:print"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "label": "File",
+      "submenu": [
+        {
+          "label": "Print",
+          "command": "pprint:print"
+        }
+      ]
+    }
+  ]
+}
