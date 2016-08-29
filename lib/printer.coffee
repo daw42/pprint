@@ -57,7 +57,7 @@ module.exports = Printer =
 
   printPygmentsLexer: ( txt, lexer ) ->
     args = atom.config.get('pprint.pygmentsOptions')
-    args = "-O #{args} -O full -f html -l #{lexer}"
+    args = "-O #{args} -O full,encoding=utf-8 -f html -l #{lexer}"
     child = exec("pygmentize #{args}", (error, stdout, stderr) =>
       if (error)
         console.error("exec error: #{error}")
