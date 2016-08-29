@@ -5,6 +5,7 @@ path = require('path')
 module.exports = Printer =
 
   printFrameId: '---print-iframe---'
+  pygmentsPath: 'pygmentize'
 
   printContentOnLoad: () ->
     iframe = document.getElementById(@printFrameId)
@@ -49,16 +50,22 @@ module.exports = Printer =
     @printPage(html)
 
   checkPygments: () ->
-    try
-      execSync( 'pygmentize -N test.java' )
-      return true
-    catch err
-      return false
+    search = ["pygmentize", path.join("C:\\", "Python27", "Scripts", "pygmentize")]
+    found = false
+    for exePath in search
+      try
+        execSync( "#{exePath} -N test.java" )
+        found = true
+        @pygmentsPath = exePath
+      catch err
+        # Empty
+
+    return found
 
   printPygmentsLexer: ( txt, lexer ) ->
     args = atom.config.get('pprint.pygmentsOptions')
     args = "-O #{args} -O full,encoding=utf-8 -f html -l #{lexer}"
-    child = exec("pygmentize #{args}", (error, stdout, stderr) =>
+    child = exec("#{@pygmentsPath} #{args}", (error, stdout, stderr) =>
       if (error)
         console.error("exec error: #{error}")
         return
@@ -69,7 +76,7 @@ module.exports = Printer =
 
   printPygments: ( txt, fileName ) ->
     # Try to determine the appropriate lexer
-    exec('pygmentize -N ' + fileName, (error, stdout, sterr) =>
+    exec("#{@pygmentsPath} -N " + fileName, (error, stdout, sterr) =>
       if(error)
         @printPygmentsLexer(txt, "text");
       else
