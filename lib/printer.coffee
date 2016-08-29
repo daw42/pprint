@@ -1,5 +1,5 @@
 fs = require('fs')
-{ exec, execSync } = require('child_process')
+{ spawn, spawnSync } = require('child_process')
 path = require('path')
 
 module.exports = Printer =
@@ -50,37 +50,36 @@ module.exports = Printer =
     @printPage(html)
 
   checkPygments: () ->
-    search = ["pygmentize", path.join("C:\\", "Python27", "Scripts", "pygmentize")]
-    found = false
-    for exePath in search
-      try
-        execSync( "#{exePath} -N test.java" )
-        found = true
-        @pygmentsPath = exePath
-      catch err
-        # Empty
-
-    return found
+    result = spawnSync( @pygmentsPath, ["-N", "test.java"] )
+    (not result.error) and result.status == 0
 
   printPygmentsLexer: ( txt, lexer ) ->
     args = atom.config.get('pprint.pygmentsOptions')
-    args = "-O #{args} -O full,encoding=utf-8 -f html -l #{lexer}"
-    child = exec("#{@pygmentsPath} #{args}", (error, stdout, stderr) =>
-      if (error)
-        console.error("exec error: #{error}")
-        return
-      @printPage(stdout)
-    )
-    child.stdin.write( txt )
+    args = ["-O", args, "-O", "full,encoding=utf-8", "-f", "html", "-l", lexer]
+    child = spawn(@pygmentsPath, args)
+    child.stdin.write(txt)
     child.stdin.end()
+    data = []
+    child.on('error', (err) => console.error( err ))
+    child.stdout.on('data', (chunk) => data.push(chunk) )
+    child.on('exit', (code, signal) =>
+      if code == 0
+        @printPage(data.join(""))
+      else
+        console.error("Failed to execute pygments")
+    )
 
   printPygments: ( txt, fileName ) ->
     # Try to determine the appropriate lexer
-    exec("#{@pygmentsPath} -N " + fileName, (error, stdout, sterr) =>
-      if(error)
-        @printPygmentsLexer(txt, "text");
+    child = spawn(@pygmentsPath, ["-N", fileName])
+    data = []
+    child.on('error', (err) => console.error( err ))
+    child.stdout.on('data', (chunk) => data.push(chunk) )
+    child.on('exit', (code, signal) =>
+      if code == 0
+        @printPygmentsLexer(txt, data.join("").trim())
       else
-        @printPygmentsLexer(txt, stdout.trim())
+        @printPygmentsLexer(txt, "text");
     )
 
   print: () ->
