@@ -84,11 +84,13 @@ module.exports = Printer =
 
   print: () ->
     editor = atom.workspace.getActiveTextEditor()
-    content = editor.getText()
-    if @checkPygments()
-      @printPygments(content, editor.getTitle())
-    else
-      @printRaw(content)
+    if editor != null
+      content = editor.getText()
+      if content != null and content.length > 0
+        if @checkPygments()
+          @printPygments(content, editor.getTitle())
+        else
+          @printRaw(content)
 
   cleanup:  () ->
     document.body.removeChild(document.getElementById(@printFrameId))
