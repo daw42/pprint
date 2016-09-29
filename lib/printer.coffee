@@ -70,6 +70,11 @@ module.exports = Printer =
     )
 
   printPygments: ( txt, fileName ) ->
+    # Pygments doesn't handle text files well
+    if path.extname(fileName).toLowerCase() == '.txt'
+      @printRaw(txt)
+      return
+
     # Try to determine the appropriate lexer
     child = spawn(@pygmentsPath, ["-N", fileName])
     data = []
