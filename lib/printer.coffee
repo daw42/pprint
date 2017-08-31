@@ -4,43 +4,36 @@ path = require('path')
 
 module.exports = Printer =
 
-  printFrameId: '---print-iframe---'
+  printFrameId: '---print-webview---'
   pygmentsPath: 'pygmentize'
 
-  printContentOnLoad: () ->
-    iframe = document.getElementById(@printFrameId)
-    ifWin = iframe.contentWindow
-    cssPath = atom.packages.resolvePackagePath('pprint')
-    cssPath = path.join( cssPath, 'styles', 'print.css')
+  printContent: () ->
+    this.getWebContents().title = "The title"
+    this.print()
 
-    printCss = fs.readFileSync( cssPath )
-    element = ifWin.document.createElement('style')
-    element.setAttribute('type', 'text/css')
-    element.textContent = printCss
-    ifWin.document.head.appendChild( element )
+  createWebviewAndPrint: (html) ->
+    hiddPrintFrame = document.getElementById(@printFrameId)
+    content = "data:text/html;charset=UTF-8," + encodeURIComponent(html)
+    if( hiddPrintFrame == null )
+      hiddPrintFrame = document.createElement("webview")
+      hiddPrintFrame.id = @printFrameId
+      hiddPrintFrame.style.visibility = "hidden"
+      hiddPrintFrame.style.position = "fixed"
+      hiddPrintFrame.style.right = "0"
+      hiddPrintFrame.style.bottom = "0"
+      cssPath = atom.packages.resolvePackagePath('pprint')
+      cssPath = path.join( cssPath, 'styles', 'print.css')
+      printCss = fs.readFileSync( cssPath )
+      hiddPrintFrame.src = content
+      hiddPrintFrame.insertCSS(printCss)
+      document.body.appendChild(hiddPrintFrame)
+    else
+      hiddPrintFrame.loadURL(content)
 
-    mediaQueryList = ifWin.matchMedia('print')
-    mediaQueryList.addListener (mql) => @cleanup() if (!mql.matches)
-
-    ifWin.onbeforeunload = @cleanup
-    ifWin.print()
-
-  createIframe: () ->
-    hiddPrintFrame = document.createElement("iframe")
-    hiddPrintFrame.id = @printFrameId
-    hiddPrintFrame.style.visibility = "hidden"
-    hiddPrintFrame.style.position = "fixed"
-    hiddPrintFrame.style.right = "0"
-    hiddPrintFrame.style.bottom = "0"
-    document.body.appendChild(hiddPrintFrame);
-    hiddPrintFrame
+    hiddPrintFrame.addEventListener('dom-ready', @printContent, {once: true})
 
   printPage: (html) ->
-    hiddPrintFrame = document.getElementById(@printFrameId)
-    if( hiddPrintFrame == null )
-      hiddPrintFrame = @createIframe()
-    hiddPrintFrame.onload = () => @printContentOnLoad()
-    hiddPrintFrame.srcdoc = html
+    f = @createWebviewAndPrint(html)
 
   escapePre: ( s ) ->
     s.replace(/&/g, "&amp;").replace(/</g, "&lt;");
