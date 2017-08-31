@@ -8,7 +8,6 @@ module.exports = Printer =
   pygmentsPath: 'pygmentize'
 
   printContent: () ->
-    this.getWebContents().title = "The title"
     this.print()
 
   createWebviewAndPrint: (html) ->
