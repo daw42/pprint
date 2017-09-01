@@ -7,7 +7,7 @@ module.exports = Printer =
   printFrameId: '---print-webview---'
   pygmentsPath: 'pygmentize'
 
-  createWebviewAndPrint: (html) ->
+  printPage: (html) ->
     hiddPrintFrame = document.getElementById(@printFrameId)
     content = "data:text/html;charset=UTF-8," + encodeURIComponent(html)
     cssPath = atom.packages.resolvePackagePath('pprint')
@@ -31,9 +31,6 @@ module.exports = Printer =
       hiddPrintFrame.print()
 
     hiddPrintFrame.addEventListener('dom-ready', loaded, {once: true})
-
-  printPage: (html) ->
-    f = @createWebviewAndPrint(html)
 
   escapePre: ( s ) ->
     s.replace(/&/g, "&amp;").replace(/</g, "&lt;");
