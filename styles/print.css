@@ -1,12 +1,12 @@
 
 @media print {
-  @page {margin: 0.5in;}
-  body {
-
+  @page {
+    size: letter;
+    margin: 0.6in;
   }
   body pre {
+    font-family: Menlo, Andale Mono, monospace;
     font-size: 9pt;
-    font-family: monospace;
     white-space: pre-wrap;
     word-wrap: break-word;
   }

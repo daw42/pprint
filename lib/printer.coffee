@@ -7,12 +7,13 @@ module.exports = Printer =
   printFrameId: '---print-webview---'
   pygmentsPath: 'pygmentize'
 
-  printContent: () ->
-    this.print()
-
   createWebviewAndPrint: (html) ->
     hiddPrintFrame = document.getElementById(@printFrameId)
     content = "data:text/html;charset=UTF-8," + encodeURIComponent(html)
+    cssPath = atom.packages.resolvePackagePath('pprint')
+    cssPath = path.join( cssPath, 'styles', 'print.css')
+    printCss = fs.readFileSync( cssPath, 'utf-8' )
+
     if( hiddPrintFrame == null )
       hiddPrintFrame = document.createElement("webview")
       hiddPrintFrame.id = @printFrameId
@@ -20,16 +21,16 @@ module.exports = Printer =
       hiddPrintFrame.style.position = "fixed"
       hiddPrintFrame.style.right = "0"
       hiddPrintFrame.style.bottom = "0"
-      cssPath = atom.packages.resolvePackagePath('pprint')
-      cssPath = path.join( cssPath, 'styles', 'print.css')
-      printCss = fs.readFileSync( cssPath )
       hiddPrintFrame.src = content
-      hiddPrintFrame.insertCSS(printCss)
       document.body.appendChild(hiddPrintFrame)
     else
       hiddPrintFrame.loadURL(content)
 
-    hiddPrintFrame.addEventListener('dom-ready', @printContent, {once: true})
+    loaded = ->
+      hiddPrintFrame.insertCSS(printCss)
+      hiddPrintFrame.print()
+
+    hiddPrintFrame.addEventListener('dom-ready', loaded, {once: true})
 
   printPage: (html) ->
     f = @createWebviewAndPrint(html)
